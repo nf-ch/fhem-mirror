@@ -327,9 +327,9 @@ LUXTRONIK2_Set($$@)
           ." resetStatistics:all,statBoilerGradientCoolDownMin,statAmbientTemp...,statElectricity...,statHours...,statHeatQ..."
           ." returnTemperatureHyst "
           ." returnTemperatureSetBack "
-          ." opModeHotWater:Auto,Party,Off"
+          ." opModeHotWater:Auto,Extra,Party,Vacation,Off"
           ." opModeVentilation:Auto,Off"
-          ." opModeHeating:Auto,Party,Off"
+          ." opModeHeating:Auto,Extra,Party,Vacation,Off"
           ." synchronizeClockHeatPump:noArg"
           ." INTERVAL ";
           
@@ -687,8 +687,8 @@ LUXTRONIK2_UpdateDone($)
              2 => "Party",
              3 => "Ferien",
              4 => "Aus" );
-   my %heatingState = ( 0 => "Abgesenkt",
-                1 => "Normal",
+  my %heatingState = ( 0 => "Abgesenkt",
+  		1 => "Normal",
                 3 => "Aus");
   my %wpType = ( 0 => "ERC", 1 => "SW1", 
              2 => "SW2", 3 => "WW1", 
@@ -1405,12 +1405,14 @@ sub LUXTRONIK2_SetParameter ($$$)
   my $host = $hash->{HOST};
   my $port = $hash->{PORT};
   my $name = $hash->{NAME};
-  
-   my %opMode = ( "Auto" => 0,
-                 "Party" => 2,
+
+  my %opWpMode = ( "Auto" => 0,
+                   "Extra" => 1,
+		   "Party" => 2,
+		   "Vacation" => 3,
                    "Off" => 4);
-   my %opVentMode = ( "Auto" => 0,
-                       "Off" => 3);
+  my %opVentMode = ( "Auto" => 0,
+                     "Off" => 3);
    
   if(AttrVal($name, "allowSetParameter", 0) != 1) {
    return $name." Error: Setting of parameters not allowed. Please set attribut 'allowSetParameter' to 1";
@@ -1472,11 +1474,11 @@ sub LUXTRONIK2_SetParameter ($$$)
   }
 
   elsif ($parameterName eq "opModeHotWater") {
-    if (! exists($opMode{$realValue})) {
-      return "$name Error: Wrong parameter given for opModeHotWater, use Automatik,Party,Off"
+    if (! exists($opWpMode{$realValue})) {
+      return "$name Error: Wrong parameter given for opModeHotWater, use Auto,Extra,Party,Vacation,Off"
      }
      $setParameter = 4;
-     $setValue = $opMode{$realValue};
+     $setValue = $opWpMode{$realValue};
   }
   
   elsif ($parameterName eq "opModeVentilation") {
@@ -1488,11 +1490,11 @@ sub LUXTRONIK2_SetParameter ($$$)
   }
 
   elsif ($parameterName eq "opModeHeating") {
-    if (! exists($opMode{$realValue})) {
-      return "$name Error: Wrong parameter given for opModeHeating, use Automatik,Off"
+    if (! exists($opWpMode{$realValue})) {
+      return "$name Error: Wrong parameter given for opModeHeating, use Auto,Extra,Party,Vacation,Off"
      }
      $setParameter = 3;
-     $setValue = $opMode{$realValue};
+     $setValue = $opWpMode{$realValue};
   }
   
   elsif ($parameterName eq "returnTemperatureHyst") {
@@ -2323,13 +2325,13 @@ LUXTRONIK2_doStatisticDeltaSingle ($$$$$$$)
          Target temperature of domestic hot water boiler in °C
          </li><br>
        <li><code>opModeHotWater &lt;Mode&gt;</code><br>
-         Operating Mode of domestic hot water boiler (Auto | Party | Off)
+         Operating Mode of domestic hot water boiler (Auto | Extra | Party | Vacation | Off)
          </li><br>
        <li><code>opModeVentilation &lt;Mode&gt;</code><br>
          Operating Mode of Ventilation (Auto | Off)
          </li><br>
        <li><code>opModeHeating &lt;Mode&gt;</code><br>
-         Operating Mode of Heating (Auto | Off)
+         Operating Mode of Heating (Auto | Extra | Party | Vacation | Off)
          </li><br>
      <li><code>resetStatistics &lt;statReadings&gt;</code>
          <br>
@@ -2496,7 +2498,7 @@ LUXTRONIK2_doStatisticDeltaSingle ($$$$$$$)
          </li><br>
       <li><code>opModeHotWater &lt;Betriebsmodus&gt;</code>
          <br>
-         Betriebsmodus des Heißwasserspeichers ( Auto | Party | Off )
+         Betriebsmodus des Heißwasserspeichers ( Auto | Extra | Party | Vacation | Off )
          </li><br>
       <li><code>opModeVentilation &lt;Betriebsmodus&gt;</code>
          <br>
@@ -2504,7 +2506,7 @@ LUXTRONIK2_doStatisticDeltaSingle ($$$$$$$)
          </li><br>
       <li><code>opModeHeating &lt;Betriebsmodus&gt;</code>
          <br>
-         Betriebsmodus der Heizung ( Auto | Off )
+         Betriebsmodus der Heizung ( Auto | Extra | Party | Vacation | Off )
          </li><br>
      <li><code>resetStatistics &lt;statWerte&gt;</code>
          <br>
